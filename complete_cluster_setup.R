@@ -2,7 +2,16 @@ knitr::opts_chunk$set(echo=F)
 knitr::opts_chunk$set(warning=F)
 knitr::opts_chunk$set(message=F)
 
-setwd("C:/Users/rarora/Documents/Website")
+print("In complete_cluster_setup.R")
+
+user_docs <- path.expand('~')
+print(paste("User docs", user_docs))
+user_website <- paste0(user_docs, "/Website/Website_files")
+print(paste("User website", user_website))
+
+install.packages("tidyverse", repos="http://cran.us.r-project.org")
+install.packages("kableExtra", repos="http://cran.us.r-project.org")
+install.packages("DT", repos="http://cran.us.r-project.org")
 library(tidyverse)
 library(readr)
 library(kableExtra)
@@ -12,26 +21,25 @@ library(DT)
 library(RColorBrewer)
 library(stringr)
 library(scales)
+
 Sys.setenv(TZ='EST')
-mcma_objs = readRDS("~/Website_files/RDSfiles/mcma_objs")
-all_conjs = readRDS("~/Website_files/RDSfiles/all_conjs")
-all_conjs_expanded = readRDS("~/Website_files/RDSfiles/all_conjs_expanded")
-derelicts = readRDS("~/Website_files/RDSfiles/derelicts")
-derelictDat = readRDS("~/Website_files/RDSfiles/derelictDatNew")
-alt_bins = readRDS("~/Website_files/RDSfiles/alt_bins")
-file_list = readRDS("~/Website_files/RDSfiles/file_list")
-all_conjs_2016 = readRDS("~/Website_files/RDSfiles/all_conjs_2016")
+print("About to readRDS mcma")
+mcma_objs = readRDS(paste0(user_website, "/RDSfiles/mcma_objs"))
+print(paste("mcma objs:", mcma_objs))
+
+all_conjs = readRDS("RDSfiles/all_conjs")
+all_conjs_expanded = readRDS("RDSfiles/all_conjs_expanded")
+derelicts = readRDS("/RDSfiles/derelicts")
+derelictDat = readRDS("RDSfiles/derelictDatNew")
+alt_bins = readRDS("RDSfiles/alt_bins")
+file_list = readRDS("RDSfiles/file_list")
+all_conjs_2016 = readRDS("RDSfiles/all_conjs_2016")
 today = toupper(strftime(Sys.Date(), format="%d%b%Y")) # current day
-path = "conj_data/"
-
-
-
-
 
 # add new conjunction files to all_conjs dataframe
 
 # read in new conjunction files
-file_list_new = list.files("C:/Users/rarora/Documents/Website/Website_files/conj_data")
+file_list_new = list.files(paste(user_website, "\\conj_data"))
 file_list_new = file_list_new[!(file_list_new %in% file_list)] # only the new conjunctions
 
 colnames = c("PrimarySatellite","SecondarySatellite","TCA_EpDay",
@@ -42,7 +50,7 @@ colnames = c("PrimarySatellite","SecondarySatellite","TCA_EpDay",
 
 all_conjs_new = data.frame()
 for (i in 1:length(file_list_new)) {
-  file = paste0("C:/Users/rarora/Documents/Website/Website_files/conj_data/", file_list_new[i])
+  file = paste0(user_website, "\\conj_data\\", file_list_new[i])
   
   firstLine = readLines(file, n=2)[2]
   
@@ -90,7 +98,7 @@ all_conjs_new = all_conjs_new %>%
 
 # update file list
 file_list = append(file_list, file_list_new)
-saveRDS(file_list, "C:/Users/rarora/Documents/Website/Website_files/RDSfiles/file_list")
+saveRDS(file_list, passte0(user_website, "\\RDSfiles\\file_list"))
 
 #########
 # WORST OFFENDER alg for new conjunctions
@@ -156,7 +164,7 @@ all_conjs_new = all_conjs_new %>%
 
 # append new conjunctions to previous
 all_conjs = rbind(all_conjs, all_conjs_new)
-saveRDS(all_conjs, "C:/Users/rarora/Documents/Website/Website_files/RDSfiles/all_conjs") # save to RDS file
+saveRDS(all_conjs, paste0(user_website, "\\RDSfiles\\all_conjs")) # save to RDS file
 
 # adjust scaling 
 all_conjs = all_conjs %>%
@@ -191,4 +199,5 @@ secondSet = all_conjs %>%
 
 # append new conjunctions to previous
 all_conjs_expanded = rbind(firstSet, secondSet)
-saveRDS(all_conjs_expanded, "C:/Users/rarora/Documents/Website/Website_files/RDSfiles/all_conjs_expanded") # save to RDS file
+saveRDS(all_conjs_expanded, paste0(user_website, "\\RDSfiles\\all_conjs_expanded")) # save to RDS file
+

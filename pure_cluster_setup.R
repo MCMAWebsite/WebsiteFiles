@@ -2,8 +2,13 @@
 knitr::opts_chunk$set(echo=F)
 knitr::opts_chunk$set(warning=F)
 knitr::opts_chunk$set(message=F)
+print("In pure_cluster_setup.R")
+user_docs <- path.expand('~')
+user_website <- paste0(user_docs, "/Website/Website_files")
 
-setwd("C:/Users/rarora/Documents/Website")
+install.packages("tidyverse", repos="https://cran.us.r-project.org")
+install.packages("kableExtra", repos="https://cran.us.r-project.org")
+install.packages("DT", repos="https://cran.us.r-project.org")
 library(tidyverse)
 library(readr)
 library(kableExtra)
@@ -14,22 +19,22 @@ library(RColorBrewer)
 library(stringr)
 library(scales)
 Sys.setenv(TZ='EST')
-mcma_objs = readRDS("~/Website_files/RDSfiles/mcma_objs")
-all_conjs_pure = readRDS("~/Website_files/pureRDSfiles/all_conjs_pure")
-derelicts = readRDS("~/Website_files/RDSfiles/derelicts")
-derelictDat = readRDS("~/Website_files/RDSfiles/derelictDatNew")
-alt_bins = readRDS("~/Website_files/RDSfiles/alt_bins")
-file_list_pure = readRDS("~/Website_files/pureRDSfiles/file_list_pure")
+mcma_objs = readRDS("RDSfiles/mcma_objs")
+all_conjs_pure = readRDS("pureRDSfiles/all_conjs_pure")
+derelicts = readRDS("RDSfiles/derelicts")
+derelictDat = readRDS("RDSfiles/derelictDatNew")
+alt_bins = readRDS("RDSfiles/alt_bins")
+file_list_pure = readRDS("pureRDSfiles/file_list_pure")
+
 today = toupper(strftime(Sys.Date(), format="%d%b%Y")) # current day
-path = "~Website_files/conj_data/"
-all_conjs_expanded_pure = readRDS("~/Website_files/pureRDSfiles/all_conjs_expanded_pure")
+all_conjs_expanded_pure = readRDS("pureRDSfiles/all_conjs_expanded_pure")
 
 
 
  # add new conjunction files to all_conjs dataframe
  
  # read in new conjunction files
- file_list_new_pure = list.files("C:/Users/rarora/Documents/Website/Website_files/conj_data")
+ file_list_new_pure = list.files(paste0(user_website, "\\conj_data"))
  file_list_new_pure = file_list_new_pure[!(file_list_new_pure %in% file_list_pure)] # only the new conjunctions
  
  colnames = c("PrimarySatellite","SecondarySatellite","TCA_EpDay",
@@ -40,7 +45,7 @@ all_conjs_expanded_pure = readRDS("~/Website_files/pureRDSfiles/all_conjs_expand
  
  all_conjs_pure_new = data.frame()
  for (i in 1:length(file_list_new_pure)) {
-   file = paste0("C:/Users/rarora/Documents/Website/Website_files/conj_data/", file_list_new_pure[i])
+   file = paste0(user_website, "\\conj_data\\", file_list_new_pure[i])
    
    firstLine = readLines(file, n=2)[2]
    
@@ -78,7 +83,7 @@ all_conjs_expanded_pure = readRDS("~/Website_files/pureRDSfiles/all_conjs_expand
  
  # update file list
  file_list_pure = append(file_list_pure, file_list_new_pure)
- saveRDS(file_list_pure, "C:/Users/rarora/Documents/Website/Website_files/pureRDSfiles/file_list_pure")
+ saveRDS(file_list_pure, paste0(user_website, "\\pureRDSfiles\\file_list_pure"))
  
  # adding new clustelab
  all_conjs_pure_new = all_conjs_pure_new %>%
@@ -152,7 +157,7 @@ all_conjs_expanded_pure = readRDS("~/Website_files/pureRDSfiles/all_conjs_expand
                                    as.numeric(combinedMass) )) # otherwise don't change
  
  # get SD op sats per conj
-  alt_bins = readRDS("C:/Users/rarora/Documents/Website/Website_files/RDSfiles/alt_bins")
+  alt_bins = readRDS(user_website, "\\RDSfiles\\alt_bins")
   roundDown <- function(x) 10*floor(x/10)
   library(zoo)
   alt_bins = derelictDat %>% 
@@ -205,7 +210,7 @@ all_conjs_expanded_pure = readRDS("~/Website_files/pureRDSfiles/all_conjs_expand
            risk_s = (combinedMass_s + persistence_s + SD_s) / (Range_s))
   
  #all_conjs_pure = rbind(all_conjs_pure,all_conjs_pure_new)
- saveRDS(all_conjs_pure,"C:/Users/rarora/Documents/Website/Website_files/pureRDSfiles/all_conjs_pure")
+ saveRDS(all_conjs_pure,paste0(user_website, "\\pureRDSfiles\\all_conjs_pure"))
   
  # pure_cluster_df = all_conjs_pure %>% 
  #   mutate(Range = Range) %>%
@@ -224,4 +229,5 @@ all_conjs_expanded_pure = readRDS("~/Website_files/pureRDSfiles/all_conjs_expand
  
  # append new conjunctions to previous
  all_conjs_expanded_pure = rbind(firstSet, secondSet)
- saveRDS(all_conjs_expanded_pure, "C:/Users/rarora/Documents/Website/Website_files/pureRDSfiles/all_conjs_expanded_pure") # save to RDS file
+ saveRDS(all_conjs_expanded_pure, paste0(user_website, "\\pureRDSfiles\\all_conjs_expanded_pure") # save to RDS file
+

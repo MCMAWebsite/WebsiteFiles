@@ -6,7 +6,7 @@ print("In daily_update1.R")
 
 # the documents folder...
 search.phrase <- 'Conjunction Reports'
-save.fldr <- file.path(path.expand('~'), "Website", "Website_files", "conj_data") # Set a root folder to save attachments into
+save.fldr <- file.path(path.expand('~'), "Website", "WebsiteFiles", "conj_data") # Set a root folder to save attachments into
 print(paste("Save Folder:", save.fldr))
 
 outlook_app <- COMCreate("Outlook.Application")

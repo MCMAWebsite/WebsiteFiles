@@ -3,12 +3,13 @@ knitr::opts_chunk$set(warning=F)
 knitr::opts_chunk$set(message=F)
 
 print("In complete_cluster_setup.R")
-user_website <- file.path(path.expand('~'), "Website", "Website_files")
+user_website <- file.path(path.expand('~'), "Website", "WebsiteFiles")
 print(paste("User website", user_website))
 
 if(!require(tidyverse)) {install.packages("tidyverse", repos="https://cran.us.r-project.org")}
 if(!require(kableExtra)) {install.packages("kableExtra", repos="https://cran.us.r-project.org")}
 if(!require(DT)) {install.packages("DT", repos="https://cran.us.r-project.org")}
+if(!require(zoo)) {install.packages("zoo", repos="https://cran.us.r-project.org")}
 
 library(tidyverse)
 library(readr)
@@ -19,6 +20,7 @@ library(DT)
 library(RColorBrewer)
 library(stringr)
 library(scales)
+library(zoo)
 
 Sys.setenv(TZ='EST')
 
@@ -52,7 +54,10 @@ today = toupper(strftime(Sys.Date(), format="%d%b%Y")) # current day
 # read in new conjunction files
 conj_path = file.path(user_website, "conj_data")
 file_list_new = list.files(conj_path)
-file_list_new = file_list_new[!(file_list_new %in% file_list)] # only the new conjunctions
+# I'm not sure why this line is in here. Problem is, for testing, This line would
+# force me to remove the file_list file each time
+#file_list_new = file_list_new[!(file_list_new %in% file_list)] # only the new conjunctions
+print(paste("file_list_new:", file_list_new))
 
 colnames = c("PrimarySatellite","SecondarySatellite","TCA_EpDay",
              "TCA_UTCG","Range","RangeX","RangeY","RangeZ","Velocity",
@@ -61,28 +66,31 @@ colnames = c("PrimarySatellite","SecondarySatellite","TCA_EpDay",
              "SecondaryCluster","DateGenerated","del")
 
 all_conjs_new = data.frame()
-for (i in 1:length(file_list_new)) {
-  file = file.path(user_website, "conj_data", file_list_new[i])
-  
-  firstLine = readLines(file, n=2)[2]
-  
+for (filename in file_list_new) {
+
+  filename = file.path(user_website, "conj_data", filename)
+  print(paste("Attempting to open", filename))
+
+  firstLine = readLines(filename, n=2)[2]
+  print(paste("readlines:", readLines(filename, n=2)))
+
   if (str_count(firstLine, ',') == 20) { # if file has trailing commas
-    temp_data = read_csv(file, skip=1, col_names = colnames, 
+    temp_data = read_csv(filename, skip=1, col_names = colnames, 
                          col_types = "ccncnnnnnnnnnnncccccc") %>%
       select(-del)
   } else {
-    temp_data = read_csv(file, skip=1, 
+    temp_data = read_csv(filename, skip=1, 
                          col_names = colnames[-length(colnames)], 
                          col_types = "ccncnnnnnnnnnnnccccc")
   }
-  
   all_conjs_new = rbind(all_conjs_new, temp_data) #for each iteration, bind the new data to the building dataset
 }
 
 mycols <- '(PrimaryCluster, SecondaryCluster)'
 minf <- paste0('min',mycols)
 maxf <- paste0('max',mycols)
-
+# How can DataGenerated be used in its own definition?
+DateGenerated <- vector()
 all_conjs_new = all_conjs_new %>%
   mutate(DateGenerated = parse_date_time(DateGenerated, tz="EST", 
                                          orders=c("%Y-%m-%d %H:%M:%S", "%m/%d/%y %H:%M")),
@@ -152,7 +160,6 @@ all_conjs_new = all_conjs_new %>%
 ## get SD op sats per conj
 alt_bins = readRDS(alt_bins_path)
 roundDown <- function(x) 10*floor(x/10)
-library(zoo)
 alt_bins = derelictDat %>% 
   filter(avgAlt < 2000 & operational) %>%
   mutate(altitude = roundDown((as.numeric(apogee) + as.numeric(perigee))/2)) %>% 
@@ -176,7 +183,8 @@ all_conjs_new = all_conjs_new %>%
 
 # append new conjunctions to previous
 all_conjs = rbind(all_conjs, all_conjs_new)
-saveRDS(all_conjs, ) # save to RDS file
+# I'm not sure where this should be saved to.
+saveRDS(all_conjs, all_conjs_path) # save to RDS file
 
 # adjust scaling 
 all_conjs = all_conjs %>%

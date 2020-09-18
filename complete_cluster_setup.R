@@ -3,15 +3,13 @@ knitr::opts_chunk$set(warning=F)
 knitr::opts_chunk$set(message=F)
 
 print("In complete_cluster_setup.R")
-
-user_docs <- path.expand('~')
-print(paste("User docs", user_docs))
-user_website <- paste0(user_docs, "/Website/Website_files")
+user_website <- file.path(path.expand('~'), "Website", "Website_files")
 print(paste("User website", user_website))
 
-install.packages("tidyverse", repos="http://cran.us.r-project.org")
-install.packages("kableExtra", repos="http://cran.us.r-project.org")
-install.packages("DT", repos="http://cran.us.r-project.org")
+if(!require(tidyverse)) {install.packages("tidyverse", repos="https://cran.us.r-project.org")}
+if(!require(kableExtra)) {install.packages("kableExtra", repos="https://cran.us.r-project.org")}
+if(!require(DT)) {install.packages("DT", repos="https://cran.us.r-project.org")}
+
 library(tidyverse)
 library(readr)
 library(kableExtra)
@@ -23,23 +21,37 @@ library(stringr)
 library(scales)
 
 Sys.setenv(TZ='EST')
-print("About to readRDS mcma")
-mcma_objs = readRDS(paste0(user_website, "/RDSfiles/mcma_objs"))
-print(paste("mcma objs:", mcma_objs))
 
-all_conjs = readRDS("RDSfiles/all_conjs")
-all_conjs_expanded = readRDS("RDSfiles/all_conjs_expanded")
-derelicts = readRDS("/RDSfiles/derelicts")
-derelictDat = readRDS("RDSfiles/derelictDatNew")
-alt_bins = readRDS("RDSfiles/alt_bins")
-file_list = readRDS("RDSfiles/file_list")
-all_conjs_2016 = readRDS("RDSfiles/all_conjs_2016")
+mcma_path <- file.path(user_website, "RDSfiles", "mcma_objs")
+mcma_objs = readRDS(mcma_path)
+
+all_conjs_path = file.path(user_website, "RDSfiles", "all_conjs")
+all_conjs = readRDS(all_conjs_path)
+
+all_conjs_expanded_path = file.path(user_website, "RDSfiles", "all_conjs_expanded")
+all_conjs_expanded = readRDS(all_conjs_expanded_path)
+
+derelicts_path = file.path(user_website, "RDSfiles", "derelicts")
+derelicts = readRDS(derelicts_path)
+
+derelictDat_path = file.path(user_website, "RDSfiles", "derelictDatNew")
+derelictDat = readRDS(derelictDat_path)
+
+alt_bins_path = file.path(user_website, "RDSfiles", "alt_bins")
+alt_bins = readRDS(alt_bins_path)
+
+# this one is also used further below
+file_list_path = file.path(user_website, "RDSfiles", "file_list")
+file_list = readRDS(file_list_path)
+
+all_conjs_2016_path = file.path(user_website, "RDSfiles", "all_conjs_2016")
+all_conjs_2016 = readRDS(all_conjs_2016_path)
+
 today = toupper(strftime(Sys.Date(), format="%d%b%Y")) # current day
 
-# add new conjunction files to all_conjs dataframe
-
 # read in new conjunction files
-file_list_new = list.files(paste(user_website, "\\conj_data"))
+conj_path = file.path(user_website, "conj_data")
+file_list_new = list.files(conj_path)
 file_list_new = file_list_new[!(file_list_new %in% file_list)] # only the new conjunctions
 
 colnames = c("PrimarySatellite","SecondarySatellite","TCA_EpDay",
@@ -50,7 +62,7 @@ colnames = c("PrimarySatellite","SecondarySatellite","TCA_EpDay",
 
 all_conjs_new = data.frame()
 for (i in 1:length(file_list_new)) {
-  file = paste0(user_website, "\\conj_data\\", file_list_new[i])
+  file = file.path(user_website, "conj_data", file_list_new[i])
   
   firstLine = readLines(file, n=2)[2]
   
@@ -98,7 +110,7 @@ all_conjs_new = all_conjs_new %>%
 
 # update file list
 file_list = append(file_list, file_list_new)
-saveRDS(file_list, passte0(user_website, "\\RDSfiles\\file_list"))
+saveRDS(file_list, file_list_path)
 
 #########
 # WORST OFFENDER alg for new conjunctions
@@ -138,7 +150,7 @@ all_conjs_new = all_conjs_new %>%
                                 as.numeric(combinedMass) )) # otherwise don't change
 
 ## get SD op sats per conj
-alt_bins = readRDS("~/Website_files/RDSfiles/alt_bins")
+alt_bins = readRDS(alt_bins_path)
 roundDown <- function(x) 10*floor(x/10)
 library(zoo)
 alt_bins = derelictDat %>% 
@@ -164,7 +176,7 @@ all_conjs_new = all_conjs_new %>%
 
 # append new conjunctions to previous
 all_conjs = rbind(all_conjs, all_conjs_new)
-saveRDS(all_conjs, paste0(user_website, "\\RDSfiles\\all_conjs")) # save to RDS file
+saveRDS(all_conjs, ) # save to RDS file
 
 # adjust scaling 
 all_conjs = all_conjs %>%
@@ -199,5 +211,4 @@ secondSet = all_conjs %>%
 
 # append new conjunctions to previous
 all_conjs_expanded = rbind(firstSet, secondSet)
-saveRDS(all_conjs_expanded, paste0(user_website, "\\RDSfiles\\all_conjs_expanded")) # save to RDS file
-
+saveRDS(all_conjs_expanded, all_conjs_expanded_path) # save to RDS file

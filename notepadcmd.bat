@@ -14,7 +14,7 @@ echo ***********************************Running Complete Cluster Setup**********
 echo ***********************************Running Pure Cluster Setup***********************************
 %RPath% %WebPath%\WebsiteFiles\pure_cluster_setup.R
 echo ***********************************Running breakdown by country***********************************
-%RPath% %WebPath%\Country_breakdown\by_country.Rmd
+%RPath% %WebPath%\Country_breakdown\by_country.R
 
 echo ***********************************Pushing By-Country data to GitHub***********************************
 ren %UserProfile%\Documents\Website\Country_breakdown\by_country.html index.html
@@ -26,7 +26,7 @@ git push origin %Branch%
 
 
 echo ***********************************Running Cumulative Conjuntion***********************************
-%RPath% %WebPath%\Cumulative_conjunction_complete\complete_cumnum.Rmd
+%RPath% %WebPath%\Cumulative_conjunction_complete\complete_cumnum.R
 
 echo ***********************************Pushing Cumulative conjution data to GitHub***********************************
 ren %WebPath%\Cumulative_conjunction_complete\complete_cumnum.html index.html
@@ -38,7 +38,7 @@ git push origin %Branch%
 
 
 echo ***********************************Running Risk Algorithms on Top 50 List***********************************
-%RPath% %WebPath%\Risk_algorithms\top50_list.Rmd
+%RPath% %WebPath%\Risk_algorithms\top50_list.R
 
 echo ***********************************Pushing Risk Algorithms to GitHub***********************************
 ren %WebPath%\Risk_algorithms\top50_list.html index.html
@@ -50,7 +50,7 @@ git push origin %Branch%
 
 
 echo ***********************************Running Conjunction Pure Cluster***********************************
-%RPath% %WebPath%\Conjunction_pure_cluster\pure_cumnum.Rmd
+%RPath% %WebPath%\Conjunction_pure_cluster\pure_cumnum.R
 
 echo ***********************************Pushing Cumulative Conjunction to GitHub***********************************
 ren %WebPath%\Conjunction_pure_cluster\pure_cumnum.html index.html
@@ -61,16 +61,17 @@ git commit -m "Cumulative Conjunction Pure Cluster daily"
 git push origin %Branch%
 
 
-echo ***********************************Running Pure By Country***********************************
-%RPath% %WebPath%\pure_by_country\pure_by_country.Rmd
-
-echo ***********************************Pushing Pure By Country to GitHub***********************************
-ren %WebPath%\pure_by_country\pure_by_country.html index.html
-move %WebPath%\pure_by_country\index.html %WebPath%\pure_by_country\docs\index.html
-cd %WebPath%\pure_by_country\docs
-git add .
-git commit -m "By Country Pure Cluster daily"
-git push origin %Branch%
+:: There was no .R file in here
+::echo ***********************************Running Pure By Country***********************************
+::%RPath% %WebPath%\pure_by_country\pure_by_country.R
+::
+::echo ***********************************Pushing Pure By Country to GitHub***********************************
+::ren %WebPath%\pure_by_country\pure_by_country.html index.html
+::move %WebPath%\pure_by_country\index.html %WebPath%\pure_by_country\docs\index.html
+::cd %WebPath%\pure_by_country\docs
+::git add .
+::git commit -m "By Country Pure Cluster daily"
+::git push origin %Branch%
 
 :: This RMD file is not in the repository
 ::echo ***********************************Running Pure Top 50***********************************
